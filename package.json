@@ -1,0 +1,39 @@
+{
+  "name": "switchncell-api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src -d lib",
+    "start": "nodemon --exec yarn babel-node ./server.js",
+    "babel-node": "babel-node --presets='env'",
+    "migrate": "knex migrate:latest --env development  --knexfile ./config/knexfile.js",
+    "seeds": "NODE_ENV=development babel-node db/bookshelfSeeds.js  --knexfile ./config/knexfile.js",
+    "migrate-test": "knex migrate:latest --env test  --knexfile ./config/knexfile.js",
+    "seeds-test": "NODE_ENV=test babel-node db/bookshelfSeeds.js  --knexfile ./config/knexfile.js",
+    "setup": "sh ./config/setup.sh"
+  },
+  "dependencies": {
+    "apollo-server-express": "^1.1.6",
+    "body-parser": "^1.18.2",
+    "bookshelf": "^0.10.4",
+    "express": "^4.16.2",
+    "graphql": "^0.11.7",
+    "graphql-server-express": "^1.1.6",
+    "graphql-tools": "^2.5.0",
+    "jest": "^21.2.1",
+    "knex": "^0.13.0",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
+    "nodemon": "^1.12.1",
+    "faker": "^4.1.0",
+    "pg": "^7.3.0"
+  }
+}
