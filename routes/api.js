@@ -7,6 +7,7 @@ import util from 'util';
 const router = express.Router();
 const salt = bcrypt.genSaltSync();
 const knex = require('knex')(require('../config/knexfile')[process.env.NODE_ENV]);
+require('dotenv').config()
 
 const comparePassword = (passw, password, cb) => {
   bcrypt.compare(passw, password, (err, isMatch) => {
