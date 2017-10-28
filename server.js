@@ -7,9 +7,7 @@ import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import router from './routes/index';
 import util from 'util';
 import passport from 'passport';
-
 import api from './routes/api';
-import User from './models/User';
 
 const promisify = util.promisify
 const PORT = 3001;
