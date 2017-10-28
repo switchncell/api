@@ -4,87 +4,25 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-import passport from 'passport';
-import passportLocal from 'passport-local';
-import jwt from 'jsonwebtoken';
-import passportJWT from 'passport-jwt'
 import router from './routes/index';
-// import strategy from './config/auth';
-// const LocalStrategy = passportLocal.Strategy;
-const ExtractJwt = passportJWT.ExtractJwt;
-const JwtStrategy = passportJWT.Strategy;
 import util from 'util';
-import bcrypt from 'bcryptjs';
+import passport from 'passport';
+
+import api from './routes/api';
+import User from './models/User';
+
 const promisify = util.promisify
-const salt = bcrypt.genSaltSync();
-
-import User from './models/User'
-
 const PORT = 3001;
 const app = express();
 
-
 app.use(passport.initialize());
-const jwtOptions = {}
-jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-jwtOptions.secretOrKey = 'secret';
-
-// app.use('/', (req, res, next) => {
-  passport.use(new JwtStrategy(jwtOptions, (jwt_payload, done) => {
-  console.log('@@@@@@@@@@')
-  console.log('payload received', jwt_payload);
-
-  return User.forge({id: jwt_payload.id})
-    .fetch()
-    .then(user => {
-
-      if (err) {
-          return done(err, false);
-      }
-      if (user) {
-          return done(null, user);
-      } else {
-          return done(null, false);
-          // or you could create a new account
-      }
-    })
-
-}))
-// })
-app.use('/auth', router)
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
-
-// passport.use(strategy)
-
-
-
-app.post("/authenticate", (req, res) => {
-  User.forge({email: req.body.email})
-    .fetch()
-    .then(user => {
-      bcrypt.compare(req.body.password, user.attributes.password, (err, isMatch) => {
-        if (err || !isMatch) {
-          return res.status(401).json({message:"passwords did not match"})
-        }
-      const payload = {id: user.id};
-
-      const token = jwt.sign(payload, jwtOptions.secretOrKey, {
-        expiresIn: 10000
-      });
-
-      res.status(200).json({message: "ok", token: token});
-  })
-})
-  .catch(err => {
-     res.status(401).json({message: 'user not found'});
-  })
-});
-
+app.use('/', router)
+app.use('/api', api);
 
 
 // app.use('/graphql', bodyParser.json(), graphqlExpress({ schema: myGraphQLSchema }));
@@ -92,6 +30,24 @@ app.post("/authenticate", (req, res) => {
 //   endpointURL: '/graphql',
 // }));
 
+app.use(function(req, res, next) {
+  let err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+
 app.listen(PORT, () => {
-  console.log('app is listening');
+  console.log(`app is listening at ${PORT}`);
 });
